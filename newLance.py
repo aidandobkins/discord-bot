@@ -93,15 +93,13 @@ client = discord.Client()
 
 FFMPEG_OPTIONS = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5', 'options': '-vn'}
 queue = []
+namequeue = []
+voice = ""
 
-#queue command (INPROGRESS)
-#async def play_next():
-#    voice = client.voice_clients[0]
-#    if(len(queue) > 0):
-#        if last_played == queue[0]:
-#            queue.pop[0]
-#        last_played = queue[0]
-#        voice.play(discord.FFmpegPCMAudio(queue[0], **FFMPEG_OPTIONS), after = play_next())
+def playSong(err):
+    if not voice.is_playing() and len(queue) > 0:
+        namequeue.pop()
+        voice.play(discord.FFmpegPCMAudio(source=queue.pop()), after=playSong)
 
 def checkBirthdays():
     birthf = open('birthdays.json')
@@ -167,6 +165,7 @@ async def on_reaction_add(reaction, user):
 
 @client.event
 async def on_message(message): #makes sure lance didnt say the command
+    global voice
     if message.author == client.user:
         return
 
@@ -263,26 +262,26 @@ async def on_message(message): #makes sure lance didnt say the command
                                    "\n**!lance** - Gives you a random lance photo to brighten your day" +
                                    "\n**!laff** - Provides a random hot submission from r/LaughJokes" + 
                                    "\n**!delete (1-10)** - Deletes the last () amount of Lance messages" +  
-                                   "\n**!play/!p (youtube link)** - Plays the youtube link audio in the channel you are currently in" +
-                                   "\n**!theme** - Plays Lance's epic theme in the channel you are currently in" + 
-                                   "\n**!stop** - Stops Lance from playing whatever audio he is currently playing" +
-                                   "\n**!leave** - Disconnects Lance from your current channel" +
                                    "\n**!birthday** - Lance will tell you how long it is until the next person's birthday (he also reminds us every so often)" +
                                    "\n**!doge** - Lance will tell you the current trading price of dogecoin" +
                                    "\n\n**Adding reactions:**" +
                                    "\n🍆 - Lance will match your eggplant" +
-                                   "\n👎 - Lance will delete this message if atleast 5 thumbs down emojis are reacted with")
+                                   "\n👎 - Lance will delete this message if atleast 5 thumbs down emojis are reacted with" +
+                                   "\n\n**SONG COMMANDS**" +
+                                   "\n**!play/!p (yt link)** - Plays the youtube link audio in the channel you are currently in" +
+                                   "\n**!theme** - Plays Lance's epic theme in the channel you are currently in" + 
+                                   "\n**!stop** - Stops Lance from playing whatever audio he is currently playing and clears queue" +
+                                   "\n**!skip** - Skips to the next song in the queue" +
+                                   "\n**!songdel (yt link)** - Removes the specified song from the queue" +
+                                   "\n**!leave** - Disconnects Lance from your current channel" +
+                                   "\n**!queue** - Shows what is in the queue currently")
 
+    #PLAY COMMAND
     if message.content.startswith('!play ') or message.content.startswith('!p '):
         if message.content.startswith('!play'):
             mess = message.content.replace('!play ', "")
         else:
             mess = message.content.replace('!p ', "")
-
-        if len(client.voice_clients) == 0:
-            voice = await message.author.voice.channel.connect()    
-        else:
-            voice = client.voice_clients[0]
 
         await message.add_reaction('✅')
 
@@ -294,16 +293,22 @@ async def on_message(message): #makes sure lance didnt say the command
                 'preferredquality': '192',
                 }],
             }
-
+    
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(mess, download=False)
             URL = info['formats'][0]['url']
-
-        if not voice.is_playing():
-            voice.play(discord.FFmpegPCMAudio(URL, **FFMPEG_OPTIONS))
+        
+        if len(client.voice_clients) == 0:
+            voice = await message.author.voice.channel.connect()    
         else:
-            await message.channel.send("**Theres a song playing, wait until it is finished, or until Aidan implements a queue system**")
-            queue.append(URL)
+            voice = client.voice_clients[0]
+
+        namequeue.append(mess)
+        queue.append(URL)
+        
+        if not voice.is_playing() and len(queue) > 0:
+            namequeue.pop()
+            voice.play(discord.FFmpegPCMAudio(source=queue.pop()), after=playSong)
 
     if message.content == "!theme":
         if len(client.voice_clients) == 0:
@@ -311,10 +316,12 @@ async def on_message(message): #makes sure lance didnt say the command
         else:
             voice = client.voice_clients[0]
             
-        if not voice.is_playing():
-            voice.play(discord.FFmpegPCMAudio(executable="C:/ffmpeg/bin/ffmpeg.exe", source="../songs/theme.mp3"))
-        else:
-            await message.channel.send("**Theres a song playing, wait until it is finished, or until Aidan implements a queue system**")
+        namequeue.append("Theme Song")
+        queue.append("../Songs/theme.mp3")
+        
+        if not voice.is_playing() and len(queue) > 0:
+            namequeue.pop()
+            voice.play(discord.FFmpegPCMAudio(source=queue.pop()), after=playSong)
 
     if message.content == "!leave":
         if len(client.voice_clients) == 0:
@@ -332,7 +339,44 @@ async def on_message(message): #makes sure lance didnt say the command
             voice = client.voice_clients[0]
 
         queue.clear()
+        namequeue.clear()
         voice.stop()
+        
+    if message.content == "!queue":
+        if len(namequeue) == 0:
+            await message.channel.send("The Song Queue is empty")
+        else: 
+            songs = "```"
+            for i in range(len(namequeue)):
+                songs += "Song " + str(i+1) + ": " + namequeue[i] + '\n'
+            
+            songs += "```"
+            await message.channel.send(songs)
+    
+    if message.content == "!skip":
+        if len(client.voice_clients) == 0:
+            voice = await message.author.voice.channel.connect()    
+        else:
+            voice = client.voice_clients[0]
+
+        voice.stop()
+        
+    if message.content.startswith("!songdel "):
+        mess = message.content.replace('!songdel ', "")
+        
+        if len(queue) == 0:
+            await message.channel.send("The queue is empty.")
+        else:
+            if mess in namequeue:
+                ind = namequeue.index(mess)
+                queue.pop(ind)
+                namequeue.remove(mess)
+                await message.add_reaction('✅')
+            else:
+                await message.channel.send("The queue doesnt contain that link, check with !queue")
+
+            
+    
 
 
 @client.event
