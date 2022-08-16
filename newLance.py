@@ -184,13 +184,13 @@ async def on_message(message): #makes sure lance didnt say the command
         await message.channel.send('https://imgur.com/a/Dbt8sdq')
         
     #LEAGUE RANK COMMAND
-    if message.content.startswith('!rank '):
+    elif message.content.startswith('!rank '):
         rankstr = message.content.replace('!rank ', "")
         newmsg = rankLookUp(rankstr)
         await message.channel.send(newmsg)
 
     #BIRTHDAY COMMAND
-    if message.content == '!birthday':
+    elif message.content == '!birthday':
         bday = checkBirthdays()
 
         if bday[0] == 0:
@@ -199,7 +199,7 @@ async def on_message(message): #makes sure lance didnt say the command
             await message.channel.send("There are " + str(bday[0]) + " days until " + bday[1] + "'s birthday.")
 
     #DOGE COMMAND
-    if message.content == '!doge':
+    elif message.content == '!doge':
         reading = urllib.request.urlopen(url)
         for i in range(37):
             reading.read(5)
@@ -210,7 +210,7 @@ async def on_message(message): #makes sure lance didnt say the command
         await message.channel.send(printprice)
 
     #LAFF COMMAND
-    if message.content == '!laff': #laughjokes reddit command
+    elif message.content == '!laff': #laughjokes reddit command
         num = random.randint(0,49)
         i = 0
         for submission in reddit.subreddit("LaughJokes").hot(limit=50):
@@ -220,7 +220,7 @@ async def on_message(message): #makes sure lance didnt say the command
         await message.channel.send(laff)
     
     #DELETE COMMAND
-    if message.content.startswith('!delete '):
+    elif message.content.startswith('!delete '):
         deletenumstr = message.content.replace('!delete ', "")
         deletenum = int(deletenumstr)
         if deletenum > 10:
@@ -240,7 +240,7 @@ async def on_message(message): #makes sure lance didnt say the command
                     count = 1
 
     #LANCE COMMAND
-    if message.content == '!lance': #lance command
+    elif message.content == '!lance': #lance command
         lancef = open('lance.txt', 'r')
         templist = lancef.read()
         lances = templist.split(',')
@@ -249,7 +249,7 @@ async def on_message(message): #makes sure lance didnt say the command
         lancef.close()
 
     #LOSERSQUEUE COMMAND
-    if message.content == '!losersqueue': #losersqueue command
+    elif message.content == '!losersqueue': #losersqueue command
         concat = rankLookUp("Bellow")
         shittalk = [
             ':heart::heart: **Cameron is doing all he can!** :heart::heart:\n\n' + concat,
@@ -265,7 +265,7 @@ async def on_message(message): #makes sure lance didnt say the command
         await message.channel.send(chosenshittalk)
 
     #HELP COMMAND
-    if message.content == '!help':
+    elif message.content == '!help':
         await message.channel.send("**!losersqueue** - Tells Cameron's current rank and a cute little quip" +
                                    "\n**!rank (summoner name)** - Lance will respond with the Solo/Duo rank of that player" +
                                    "\n**!pinkcap** - Emoji of Dylan" +
@@ -285,9 +285,52 @@ async def on_message(message): #makes sure lance didnt say the command
                                    "\n**!songdel (queue#)** - Removes the specified song from the queue" +
                                    "\n**!leave** - Disconnects Lance from your current channel" +
                                    "\n**!queue** - Shows what is in the queue currently")
+    #OWES COMMANDS
+    elif message.content.startswith('!seebalance '):
+        name = message.content.replace('!seebalance ', "")
 
-    #PLAY COMMAND
-    if message.content.startswith('!play ') or message.content.startswith('!p '):
+        #TODO: SQL query to find balance in db, according to name row
+
+        await message.channel.send("You probably owe something, but the db isnt setup yet") #sends the query returned, with some formatting
+
+    elif message.content.startswith('!') and (message.content.contains(' owes ') or message.content.contains(' owe ')): 
+        #syntax is "!Aidan owes Cody Dylan 20" || !Aidan Dylan owe Cody 30
+        #it also can parse out ' and ' and '$' to allow for more natural language like:
+        #!Aidan and Dylan owe Cody and Brandon $30
+        mess = message.content.replace('!', "")
+        mess = mess.replace(' and ', "")
+        mess = mess.replace('$', "")
+        if message.content.contains(' owes '):
+            mess = mess.split(" owes ") #[Aidan, Cody Dylan 20]
+        else:
+            mess = mess.split(" owe ") #[Aidan Dylan, Cody 30]
+        owers = mess[0].split() #[Aidan] || [Aidan, Dylan]
+        amount_owed = mess[1].pop(-1) #20 || 30
+        owees = mess[1].split() #[Cody, Dylan] || [Cody]
+
+        #TODO: SQL Query to insert this info into the db
+
+        await message.channel.send("Owers: " + owers + "\nOwees: " + owees + "\nAmount Owed to the Owees (Individually, not split up evenly): " + amount_owed)
+
+    elif message.content.startswith('!') and message.content.contains(' paid '): 
+         #syntax is "!Aidan paid Cody 20"
+        #it also can parse out ' and ' and '$' to allow for more natural language like:
+        #!Aidan and Dylan paid Cody and Brandon $30
+        mess = message.content.replace('!', "")
+        mess = mess.replace(' and ', "")
+        mess = mess.replace('$', "")
+        mess = mess.split(" paid ") #[Aidan, Cody Dylan 20]
+
+        payers = mess[0].split() #[Aidan]
+        amount_paid = mess[1].pop(-1) #20
+        payees = mess[1].split() #[Cody, Dylan]
+
+        #TODO: SQL Query to insert this info into the db
+
+        await message.channel.send("Payers: " + payers + "\nPayees: " + payees + "\nAmount Paid to the Payees (Individually, not split up evenly): " + amount_paid)
+
+    #SONG COMMANDS
+    elif message.content.startswith('!play ') or message.content.startswith('!p '):
         if message.content.startswith('!play'):
             mess = message.content.replace('!play ', "")
         else:
