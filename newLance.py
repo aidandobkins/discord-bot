@@ -293,7 +293,7 @@ async def on_message(message): #makes sure lance didnt say the command
 
         await message.channel.send("You probably owe something, but the db isnt setup yet") #sends the query returned, with some formatting
 
-    elif message.content.startswith('!') and (message.content.contains(' owes ') or message.content.contains(' owe ')): 
+    elif message.content.startswith('!') and (' owes ' in message.content or ' owe ' in message.content): 
         #syntax is "!Aidan owes Cody Dylan 20" || !Aidan Dylan owe Cody 30
         #it also can parse out ' and ' and '$' to allow for more natural language like:
         #!Aidan and Dylan owe Cody and Brandon $30
@@ -312,7 +312,7 @@ async def on_message(message): #makes sure lance didnt say the command
 
         await message.channel.send("Owers: " + owers + "\nOwees: " + owees + "\nAmount Owed to the Owees (Individually, not split up evenly): " + amount_owed)
 
-    elif message.content.startswith('!') and message.content.contains(' paid '): 
+    elif message.content.startswith('!') and ' paid ' in message.content: 
          #syntax is "!Aidan paid Cody 20"
         #it also can parse out ' and ' and '$' to allow for more natural language like:
         #!Aidan and Dylan paid Cody and Brandon $30
