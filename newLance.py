@@ -300,11 +300,14 @@ async def on_message(message): #makes sure lance didnt say the command
         mess = message.content.replace('!', "")
         mess = mess.replace(' and ', "")
         mess = mess.replace('$', "")
+        print(mess)
         if ' owes ' in message.content:
             mess = mess.split(" owes ") #[Aidan, Cody Dylan 20]
         else:
             mess = mess.split(" owe ") #[Aidan Dylan, Cody 30]
+        print(mess)
         owers = mess[0].split() #[Aidan] || [Aidan, Dylan]
+        print(mess)
         amount_owed = mess[1].pop(-1) #20 || 30
         owees = mess[1].split() #[Cody, Dylan] || [Cody]
 
