@@ -1,15 +1,17 @@
 import discord
 import asyncio
+import datetime
 from discord.ext.commands import Bot
 from discord.utils import *
 from discord.ext import commands
 from discord import FFmpegPCMAudio
+from discord import Embed
 from youtube_dl import YoutubeDL
 import youtube_dl
 import random
 import praw
 import os
-import urllib.request
+import urllib.request, urllib.parse, re
 from datetime import date
 import time
 from discord.ext import tasks
@@ -98,8 +100,16 @@ voice = ""
 
 def playSong(err):
     if not voice.is_playing() and len(queue) > 0:
-        namequeue.pop()
-        voice.play(discord.FFmpegPCMAudio(source=queue.pop()), after=playSong)
+        namequeue.pop(0)
+        voice.play(discord.FFmpegPCMAudio(source=queue.pop(0), **FFMPEG_OPTIONS), after=playSong)
+    #elif len(queue) == 0 and not voice.is_playing():
+        #await leave()
+        
+async def leave():
+    time.sleep(300)
+    if(not voice.is_playing()):
+        #PRINT A STATEMENT SAYING ITS LEAVING AFTER 5 MINS
+        await voice.disconnect()
 
 def checkBirthdays():
     birthf = open('birthdays.json')
@@ -214,7 +224,7 @@ async def on_message(message): #makes sure lance didnt say the command
         deletenumstr = message.content.replace('!delete ', "")
         deletenum = int(deletenumstr)
         if deletenum > 10:
-            await message.channel.send("Put in a lower number you fuck")
+            await message.channel.send("Put in a lower number, max is 10")
             return
         count = 0
         await message.delete()
@@ -268,11 +278,11 @@ async def on_message(message): #makes sure lance didnt say the command
                                    "\n🍆 - Lance will match your eggplant" +
                                    "\n👎 - Lance will delete this message if atleast 5 thumbs down emojis are reacted with" +
                                    "\n\n**SONG COMMANDS**" +
-                                   "\n**!play/!p (yt link)** - Plays the youtube link audio in the channel you are currently in" +
+                                   "\n**!play/!p (yt link/yt search)** - Plays the youtube link audio in the channel you are currently in" +
                                    "\n**!theme** - Plays Lance's epic theme in the channel you are currently in" + 
                                    "\n**!stop** - Stops Lance from playing whatever audio he is currently playing and clears queue" +
                                    "\n**!skip** - Skips to the next song in the queue" +
-                                   "\n**!songdel (yt link)** - Removes the specified song from the queue" +
+                                   "\n**!songdel (queue#)** - Removes the specified song from the queue" +
                                    "\n**!leave** - Disconnects Lance from your current channel" +
                                    "\n**!queue** - Shows what is in the queue currently")
 
@@ -284,31 +294,55 @@ async def on_message(message): #makes sure lance didnt say the command
             mess = message.content.replace('!p ', "")
 
         await message.add_reaction('✅')
-
+        
+        if not mess.startswith('http'):
+            query_string = urllib.parse.urlencode({'search_query': mess})
+            htm_content = urllib.request.urlopen('http://www.youtube.com/results?' + query_string)
+            results = re.findall(r'/watch\?v=(.{11})', htm_content.read().decode())
+            mess = 'http://www.youtube.com/watch?v=' + results[0]
+        
         ydl_opts = {
             'format': 'bestaudio/best',
+            'highWaterMark': '1<<25',
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
                 'preferredquality': '192',
                 }],
             }
-    
+        
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(mess, download=False)
             URL = info['formats'][0]['url']
+            vidtitle = info['title']
+            thumb = info['thumbnail']
         
         if len(client.voice_clients) == 0:
             voice = await message.author.voice.channel.connect()    
         else:
             voice = client.voice_clients[0]
 
-        namequeue.append(mess)
+        namequeue.append(vidtitle)
         queue.append(URL)
         
+        if (len(queue) == 1 and voice.is_playing()) or (len(queue) > 1):
+            titlemess = "**ADDED TO QUEUE**\n"
+        elif len(queue) == 1:
+            titlemess = "**NOW PLAYING**\n"
+        
+        duration = datetime.timedelta(seconds = int(info['duration']))
+        
+        embedvar = discord.Embed(title=titlemess)
+        embedvar.set_thumbnail(url=thumb)
+        embedvar.add_field(name="Song", value=str("[" + vidtitle + "](" + mess + ")"), inline=False)
+        embedvar.add_field(name="Duration", value=duration)
+        if titlemess != "**NOW PLAYING**\n":
+            embedvar.add_field(name="Position in Queue", value=str(queue.index(URL)+1))
+        await message.channel.send(embed=embedvar)
+        
         if not voice.is_playing() and len(queue) > 0:
-            namequeue.pop()
-            voice.play(discord.FFmpegPCMAudio(source=queue.pop()), after=playSong)
+            namequeue.pop(0)
+            voice.play(discord.FFmpegPCMAudio(source=queue.pop(0), **FFMPEG_OPTIONS), after=playSong)
 
     if message.content == "!theme":
         if len(client.voice_clients) == 0:
@@ -320,8 +354,8 @@ async def on_message(message): #makes sure lance didnt say the command
         queue.append("../Songs/theme.mp3")
         
         if not voice.is_playing() and len(queue) > 0:
-            namequeue.pop()
-            voice.play(discord.FFmpegPCMAudio(source=queue.pop()), after=playSong)
+            namequeue.pop(0)
+            voice.play(discord.FFmpegPCMAudio(source=queue.pop(0), **FFMPEG_OPTIONS), after=playSong)
 
     if message.content == "!leave":
         if len(client.voice_clients) == 0:
@@ -341,6 +375,8 @@ async def on_message(message): #makes sure lance didnt say the command
         queue.clear()
         namequeue.clear()
         voice.stop()
+
+        #await playSong(err)
         
     if message.content == "!queue":
         if len(namequeue) == 0:
@@ -367,13 +403,9 @@ async def on_message(message): #makes sure lance didnt say the command
         if len(queue) == 0:
             await message.channel.send("The queue is empty.")
         else:
-            if mess in namequeue:
-                ind = namequeue.index(mess)
-                queue.pop(ind)
-                namequeue.remove(mess)
-                await message.add_reaction('✅')
-            else:
-                await message.channel.send("The queue doesnt contain that link, check with !queue")
+            queue.pop(int(mess)-1)
+            await message.channel.send("**Removed: **" + namequeue.pop(int(mess)-1))
+            
 
             
     
