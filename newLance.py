@@ -318,7 +318,7 @@ async def on_message(message): #makes sure lance didnt say the command
         else:
             mess = mess.split(" owe ") #[Aidan Dylan, Cody 30]
         owers = mess[0].split() #[Aidan] || [Aidan, Dylan]
-        mess = mess[1].split() 
+        mess = mess[1].split() #[Cody, Dylan, 20] || [Cody, 30]
         amount_owed = mess[-1] #20 || 30
         owees = mess[:-1] #[Cody, Dylan] || [Cody]
 
@@ -336,7 +336,7 @@ async def on_message(message): #makes sure lance didnt say the command
         mess = mess.split(" paid ") #[Aidan, Cody Dylan 20]
 
         payers = mess[0].split() #[Aidan] || [Aidan, Dylan]
-        mess = mess[1].split() 
+        mess = mess[1].split() #[Cody, Dylan, 20] || [Cody, 30]
         amount_paid = mess[-1] #20 || 30
         payees = mess[:-1] #[Cody, Dylan] || [Cody]
 
