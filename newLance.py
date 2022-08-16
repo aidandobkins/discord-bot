@@ -289,7 +289,7 @@ async def on_message(message): #makes sure lance didnt say the command
     elif message.content.startswith('!seebalance ') or message.content == '!seebalance':
         if message.content == '!seebalance':
             userid = message.author.id
-            if userid == '183383851735711744':
+            if userid == 183383851735711744:
                 name = 'Aidan'
             else:
                 name = 'Unknown'
