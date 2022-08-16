@@ -286,12 +286,19 @@ async def on_message(message): #makes sure lance didnt say the command
                                    "\n**!leave** - Disconnects Lance from your current channel" +
                                    "\n**!queue** - Shows what is in the queue currently")
     #OWES COMMANDS
-    elif message.content.startswith('!seebalance '):
-        name = message.content.replace('!seebalance ', "")
+    elif message.content.startswith('!seebalance ') or message.content == '!seebalance':
+        if message.content == '!seebalance':
+            userid = message.author.id
+            if userid == '183383851735711744':
+                name = 'Aidan'
+            else:
+                name = 'Unknown'
+        else:
+            name = message.content.replace('!seebalance ', "")
 
         #TODO: SQL query to find balance in db, according to name row
 
-        await message.channel.send("You probably owe something, but the db isnt setup yet") #sends the query returned, with some formatting
+        await message.channel.send(name + "'s balance is not setup yet, but the db is coming") #sends the query returned, with some formatting
 
     elif message.content.startswith('!') and (' owes ' in message.content or ' owe ' in message.content): 
         #syntax is "!Aidan owes Cody Dylan 20" || !Aidan Dylan owe Cody 30
