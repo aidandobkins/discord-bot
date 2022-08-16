@@ -311,24 +311,25 @@ async def on_message(message): #makes sure lance didnt say the command
 
         #TODO: SQL Query to insert this info into the db
 
-        await message.channel.send("Owers: " + owers + "\nOwees: " + owees + "\nAmount Owed to the Owees (Individually, not split up evenly): " + amount_owed)
+        await message.channel.send("Owers: " + str(owers) + "\nOwees: " + str(owees) + "\nAmount Owed to the Owees (Individually, not split up evenly): " + str(amount_owed))
 
     elif message.content.startswith('!') and ' paid ' in message.content: 
          #syntax is "!Aidan paid Cody 20"
         #it also can parse out ' and ' and '$' to allow for more natural language like:
         #!Aidan and Dylan paid Cody and Brandon $30
         mess = message.content.replace('!', "")
-        mess = mess.replace(' and ', "")
+        mess = mess.replace(' and ', " ")
         mess = mess.replace('$', "")
         mess = mess.split(" paid ") #[Aidan, Cody Dylan 20]
 
-        payers = mess[0].split() #[Aidan]
-        amount_paid = mess[1].pop(-1) #20
-        payees = mess[1].split() #[Cody, Dylan]
+        payers = mess[0].split() #[Aidan] || [Aidan, Dylan]
+        mess = mess[1].split() 
+        amount_paid = mess[-1] #20 || 30
+        payees = mess[:-1] #[Cody, Dylan] || [Cody]
 
         #TODO: SQL Query to insert this info into the db
 
-        await message.channel.send("Payers: " + payers + "\nPayees: " + payees + "\nAmount Paid to the Payees (Individually, not split up evenly): " + amount_paid)
+        await message.channel.send("Payers: " + str(payers) + "\nPayees: " + str(payees) + "\nAmount Paid to the Payees (Individually, not split up evenly): " + str(amount_paid))
 
     #SONG COMMANDS
     elif message.content.startswith('!play ') or message.content.startswith('!p '):
