@@ -277,6 +277,11 @@ async def on_message(message): #makes sure lance didnt say the command
                                    "\n\n**Adding reactions:**" +
                                    "\n🍆 - Lance will match your eggplant" +
                                    "\n👎 - Lance will delete this message if atleast 5 thumbs down emojis are reacted with" +
+                                   "\n\n**BALANCE COMMANDS**" +
+                                   "\n**!seebalance (person)** - View the amount that someone owes people (use no name to see yourself)" +
+                                   "\n**!(PersonX) owes (PesonY) (amount)** - Sets the amount that somebody owes somebody else" +
+                                   "\n**!(PersonX) paid (PesonY) (amount)** - Sets the amount that somebody paid somebody else" +
+                                   "\nPossible syntax include any number and combination of people, and the use of '$', 'and', 'owe'/'owes'" +
                                    "\n\n**SONG COMMANDS**" +
                                    "\n**!play/!p (yt link/yt search)** - Plays the youtube link audio in the channel you are currently in" +
                                    "\n**!theme** - Plays Lance's epic theme in the channel you are currently in" + 
@@ -289,6 +294,7 @@ async def on_message(message): #makes sure lance didnt say the command
     elif message.content.startswith('!seebalance ') or message.content == '!seebalance':
         if message.content == '!seebalance':
             userid = message.author.id
+            #TODO: mark whose id is whose, and store those in a separate file for privacy
             if userid == 183383851735711744:
                 name = 'Aidan'
             else:
@@ -298,7 +304,7 @@ async def on_message(message): #makes sure lance didnt say the command
 
         #TODO: SQL query to find balance in db, according to name row
 
-        await message.channel.send(name + "'s balance is not setup yet, but the db is coming") #sends the query returned, with some formatting
+        await message.channel.send(name + "'s balance is not setup yet, but the db is coming")
 
     elif message.content.startswith('!') and (' owes ' in message.content or ' owe ' in message.content): 
         #syntax is "!Aidan owes Cody Dylan 20" || !Aidan Dylan owe Cody 30
