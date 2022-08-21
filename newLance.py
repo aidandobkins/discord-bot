@@ -363,7 +363,7 @@ async def on_message(message): #makes sure lance didnt say the command
                     remaining_owed = int(amount_paid) - int(existing_owed[0])
                     if remaining_owed < 0: 
                         remaining_owed = 0
-                    cur.execute("UPDATE " + i + " SET amount_owed = " + str(remaining_owed) + "WHERE person_owed = '" + j + "'")
+                    cur.execute("UPDATE " + i + " SET amount_owed = " + str(remaining_owed) + " WHERE person_owed = '" + j + "'")
 
         await message.channel.send("Payers: " + str(payers) + "\nPayees: " + str(payees) + "\nAmount Paid to the Payees (Individually, not split up evenly): " + str(amount_paid))
 
