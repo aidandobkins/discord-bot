@@ -323,7 +323,7 @@ async def on_message(message): #makes sure lance didnt say the command
             for j in owees:
                 existing_owed = cur.execute("SELECT amount_owed FROM " + i + " WHERE person_owed = '" + j + "'")
                 existing_owed = existing_owed.fetchone()
-                print(existing_owed)
+                print(existing_owed[0])
                 if existing_owed == None:
                     cur.execute("INSERT INTO " + i + ' VALUES ("' + j + '", ' + str(amount_owed) + ')')
                 else:
