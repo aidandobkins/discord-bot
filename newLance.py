@@ -278,9 +278,9 @@ async def on_message(message): #makes sure lance didnt say the command
             userid = message.author.id
             #TODO: mark whose id is whose, and store those in a separate file for privacy
             if userid == 183383851735711744:
-                name = 'Aidan'
+                name = 'aidan'
             else:
-                name = 'Unknown'
+                name = 'unknown'
         else:
             name = message.content.replace('!seebalance ', "")
 
@@ -307,7 +307,24 @@ async def on_message(message): #makes sure lance didnt say the command
         amount_owed = mess[-1] #20 || 30
         owees = mess[:-1] #[Cody, Dylan] || [Cody]
 
+        for i in range(len(owers)):
+            owers[i] = owers[i].lower()
+
+        for i in range(len(owees)):
+            owees[i] = owees[i].lower()
+
         #TODO: SQL Query to insert this info into the db
+        con = sqlite3.connect("owes.db")
+        cur = con.cursor
+        
+        for i in owers:
+            cur.execute("CREATE TABLE IF NOT EXISTS " + i + " (person_owed VARCHAR(20), amount_owed INT(10))")
+            for j in owees:
+                existing_owed = cur.execute("SELECT amount_owed FROM " + i + " WHERE person_owed = '" + j + "'")
+                if existing_owed.fetchall() == None:
+                    cur.execute("INSERT INTO " + i + ' VALUES ("' + j + '", ' + str(amount_owed) + ')')
+                else:
+                    cur.execute("UPDATE " + i + " SET amount_owed = " + str(amount_owed + int(existing_owed)) + "WHERE person_owed = '" + j + "'")
 
         await message.channel.send("Owers: " + str(owers) + "\nOwees: " + str(owees) + "\nAmount Owed to the Owees (Individually, not split up evenly): " + str(amount_owed))
 
@@ -325,7 +342,26 @@ async def on_message(message): #makes sure lance didnt say the command
         amount_paid = mess[-1] #20 || 30
         payees = mess[:-1] #[Cody, Dylan] || [Cody]
 
+        for i in range(len(payers)):
+            payers[i] = payers[i].lower()
+
+        for i in range(len(payees)):
+            payees[i] = payees[i].lower()
+
         #TODO: SQL Query to insert this info into the db
+        con = sqlite3.connect("owes.db")
+        cur = con.cursor
+
+        for i in payers:
+            for j in payees:
+                existing_owed = cur.execute("SELECT amount_owed FROM " + i + " WHERE person_owed = '" + j + "'")
+                remaining_owed = amount_owed - int(existing_owed)
+                if remaining_owed < 0: 
+                    remaining_owed = 0
+                if existing_owed.fetchall() == None:
+                    await message.channel.send(str(payers) + " didn't owe " + str(payees) + " anything.")
+                else:
+                    cur.execute("UPDATE " + i + " SET amount_owed = " + str(remaining_owed) + "WHERE person_owed = '" + j + "'")
 
         await message.channel.send("Payers: " + str(payers) + "\nPayees: " + str(payees) + "\nAmount Paid to the Payees (Individually, not split up evenly): " + str(amount_paid))
 
