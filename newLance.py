@@ -27,9 +27,6 @@ f = open("api.txt", 'r')
 apidata = f.read().splitlines()
 f.close()
 
-#SQL STUFF
-con = sqlite3.connect("owes.db")
-
 #NOMICS API STUFF
 url = apidata[0]
 
@@ -288,10 +285,12 @@ async def on_message(message): #makes sure lance didnt say the command
             name = message.content.replace('!seebalance ', "")
 
         #TODO: SQL query to find balance in db, according to name row
+        con = sqlite3.connect("owes.db")
         cur = con.cursor()
         rows = cur.execute("SELECT * FROM " + name)
 
         await message.channel.send(str(rows.fetchall()))
+        con.commit()
 
     elif message.content.startswith('!') and (' owes ' in message.content or ' owe ' in message.content): 
         #syntax is "!Aidan owes Cody Dylan 20" || !Aidan Dylan owe Cody 30
@@ -316,6 +315,7 @@ async def on_message(message): #makes sure lance didnt say the command
             owees[i] = owees[i].lower()
 
         #TODO: SQL Query to insert this info into the db
+        con = sqlite3.connect("owes.db")
         cur = con.cursor()
         
         for i in owers:
@@ -330,6 +330,7 @@ async def on_message(message): #makes sure lance didnt say the command
                     cur.execute("UPDATE " + i + " SET amount_owed = " + str(remaining_owed) + " WHERE person_owed = '" + j + "'")
 
         await message.channel.send("Owers: " + str(owers) + "\nOwees: " + str(owees) + "\nAmount Owed to the Owees (Individually, not split up evenly): " + str(amount_owed))
+        con.commit()
 
     elif message.content.startswith('!') and ' paid ' in message.content: 
          #syntax is "!Aidan paid Cody 20"
@@ -352,6 +353,7 @@ async def on_message(message): #makes sure lance didnt say the command
             payees[i] = payees[i].lower()
 
         #TODO: SQL Query to insert this info into the db
+        con = sqlite3.connect("owes.db")
         cur = con.cursor()
 
         for i in payers:
@@ -367,6 +369,7 @@ async def on_message(message): #makes sure lance didnt say the command
                     cur.execute("UPDATE " + i + " SET amount_owed = " + str(remaining_owed) + " WHERE person_owed = '" + j + "'")
 
         await message.channel.send("Payers: " + str(payers) + "\nPayees: " + str(payees) + "\nAmount Paid to the Payees (Individually, not split up evenly): " + str(amount_paid))
+        con.commit()
 
     #SONG COMMANDS
     elif message.content.startswith('!play ') or message.content.startswith('!p '):
