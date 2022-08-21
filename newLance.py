@@ -360,7 +360,7 @@ async def on_message(message): #makes sure lance didnt say the command
         con = sqlite3.connect("owes.db")
         cur = con.cursor()
 
-        for i in payers:
+        for i in payers: #TODO: remove column if the amount is 0
             for j in payees:
                 existing_owed = cur.execute("SELECT amount_owed FROM " + i + " WHERE person_owed = '" + j + "'")
                 existing_owed = existing_owed.fetchone()
