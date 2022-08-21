@@ -325,7 +325,7 @@ async def on_message(message): #makes sure lance didnt say the command
                 if existing_owed.fetchall() == []:
                     cur.execute("INSERT INTO " + i + ' VALUES ("' + j + '", ' + str(amount_owed) + ')')
                 else:
-                    cur.execute("UPDATE " + i + " SET amount_owed = " + str(amount_owed + int(existing_owed.fetchall())) + "WHERE person_owed = '" + j + "'")
+                    cur.execute("UPDATE " + i + " SET amount_owed = " + str(amount_owed + int(existing_owed.fetchone())) + "WHERE person_owed = '" + j + "'")
 
         await message.channel.send("Owers: " + str(owers) + "\nOwees: " + str(owees) + "\nAmount Owed to the Owees (Individually, not split up evenly): " + str(amount_owed))
 
@@ -355,7 +355,7 @@ async def on_message(message): #makes sure lance didnt say the command
         for i in payers:
             for j in payees:
                 existing_owed = cur.execute("SELECT amount_owed FROM " + i + " WHERE person_owed = '" + j + "'")
-                remaining_owed = amount_owed - int(existing_owed.fetchall())
+                remaining_owed = amount_owed - int(existing_owed.fetchone())
                 if remaining_owed < 0: 
                     remaining_owed = 0
                 if existing_owed.fetchall() == []:
