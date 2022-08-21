@@ -291,7 +291,7 @@ async def on_message(message): #makes sure lance didnt say the command
         rows = rows.fetchall()
         strings = ""
         for i in rows:
-            strings = strings + "Amount owed to " + str(i[0]) + ": " + str(i[1])
+            strings = strings + "Amount owed to " + str(i[0]) + ": " + str(i[1]) + '\n'
 
         await message.channel.send(strings)
         con.commit()
