@@ -322,7 +322,7 @@ async def on_message(message): #makes sure lance didnt say the command
             cur.execute("CREATE TABLE IF NOT EXISTS " + i + " (person_owed VARCHAR(20), amount_owed INT(10))")
             for j in owees:
                 existing_owed = cur.execute("SELECT amount_owed FROM " + i + " WHERE person_owed = '" + j + "'")
-                if existing_owed.fetchall() == None:
+                if existing_owed.fetchall() == []:
                     cur.execute("INSERT INTO " + i + ' VALUES ("' + j + '", ' + str(amount_owed) + ')')
                 else:
                     cur.execute("UPDATE " + i + " SET amount_owed = " + str(amount_owed + int(existing_owed.fetchall())) + "WHERE person_owed = '" + j + "'")
@@ -358,7 +358,7 @@ async def on_message(message): #makes sure lance didnt say the command
                 remaining_owed = amount_owed - int(existing_owed.fetchall())
                 if remaining_owed < 0: 
                     remaining_owed = 0
-                if existing_owed.fetchall() == None:
+                if existing_owed.fetchall() == []:
                     await message.channel.send(str(payers) + " didn't owe " + str(payees) + " anything.")
                 else:
                     cur.execute("UPDATE " + i + " SET amount_owed = " + str(remaining_owed) + "WHERE person_owed = '" + j + "'")
