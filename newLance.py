@@ -20,23 +20,17 @@ from discord.ext import commands
 from discord import NotFound
 from discord.utils import get
 import json
+import sqlite3
+from riotwatcher import LolWatcher, ApiError
 
 f = open("api.txt", 'r')
 apidata = f.read().splitlines()
 f.close()
 
 #NOMICS API STUFF
-#---------------------------------------
-#---------------------------------------
-#---------------------------------------
-
 url = apidata[0]
 
-#REDDIT API STUFF
-#---------------------------------------
-#---------------------------------------
-#---------------------------------------
-
+#REDDIT API
 reddit = praw.Reddit(
      client_id = apidata[1],
      client_secret = apidata[2],
@@ -44,15 +38,6 @@ reddit = praw.Reddit(
 )
 
 #RIOT API STUFF
-#---------------------------------------
-#---------------------------------------
-#---------------------------------------
-#---------------------------------------
-#---------------------------------------
-#---------------------------------------
-
-from riotwatcher import LolWatcher, ApiError
-
 api_key = apidata[4]
 watcher = LolWatcher(api_key)
 my_region = 'na1'
@@ -84,9 +69,6 @@ def rankLookUp(name):
     return name + " is **" + str(tier) + "** **" + str(division) + "**\n*" + str(lp) + "* *LP*"
 
 #DISCORD BOT STUFF
-#---------------------------------------
-#---------------------------------------
-#---------------------------------------
 tokenf = open('token.txt', 'r')
 TOKEN = tokenf.readline()
 tokenf.close()
@@ -303,8 +285,11 @@ async def on_message(message): #makes sure lance didnt say the command
             name = message.content.replace('!seebalance ', "")
 
         #TODO: SQL query to find balance in db, according to name row
+        con = sqlite3.connect("owes.db")
+        cur = con.cursor
+        rows = cur.execute("SELECT * FROM " + name)
 
-        await message.channel.send(name + "'s balance is not setup yet, but the db is coming")
+        await message.channel.send(str(rows))
 
     elif message.content.startswith('!') and (' owes ' in message.content or ' owe ' in message.content): 
         #syntax is "!Aidan owes Cody Dylan 20" || !Aidan Dylan owe Cody 30
