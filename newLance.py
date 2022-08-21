@@ -355,7 +355,7 @@ async def on_message(message): #makes sure lance didnt say the command
         for i in payers:
             for j in payees:
                 existing_owed = cur.execute("SELECT amount_owed FROM " + i + " WHERE person_owed = '" + j + "'")
-                remaining_owed = amount_owed - int(existing_owed.fetchone())
+                remaining_owed = amount_paid - int(existing_owed.fetchone())
                 if remaining_owed < 0: 
                     remaining_owed = 0
                 if existing_owed.fetchall() == []:
