@@ -288,8 +288,12 @@ async def on_message(message): #makes sure lance didnt say the command
         con = sqlite3.connect("owes.db")
         cur = con.cursor()
         rows = cur.execute("SELECT * FROM " + name)
+        rows = rows.fetchall()
+        strings = ""
+        for i in rows:
+            strings = strings + "Amount owed to " + str(i[0]) + ": " + str(i[1])
 
-        await message.channel.send(str(rows.fetchall()))
+        await message.channel.send(strings)
         con.commit()
 
     elif message.content.startswith('!') and (' owes ' in message.content or ' owe ' in message.content): 
@@ -329,8 +333,8 @@ async def on_message(message): #makes sure lance didnt say the command
                     remaining_owed = int(amount_owed) + int(existing_owed[0])
                     cur.execute("UPDATE " + i + " SET amount_owed = " + str(remaining_owed) + " WHERE person_owed = '" + j + "'")
 
-        await message.channel.send("Owers: " + str(owers) + "\nOwees: " + str(owees) + "\nAmount Owed to the Owees (Individually, not split up evenly): " + str(amount_owed))
         con.commit()
+        await message.channel.send("Amount owed updated")
 
     elif message.content.startswith('!') and ' paid ' in message.content: 
          #syntax is "!Aidan paid Cody 20"
@@ -368,8 +372,8 @@ async def on_message(message): #makes sure lance didnt say the command
                         remaining_owed = 0
                     cur.execute("UPDATE " + i + " SET amount_owed = " + str(remaining_owed) + " WHERE person_owed = '" + j + "'")
 
-        await message.channel.send("Payers: " + str(payers) + "\nPayees: " + str(payees) + "\nAmount Paid to the Payees (Individually, not split up evenly): " + str(amount_paid))
         con.commit()
+        await message.channel.send("Amount paid updated")
 
     #SONG COMMANDS
     elif message.content.startswith('!play ') or message.content.startswith('!p '):
