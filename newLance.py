@@ -326,7 +326,8 @@ async def on_message(message): #makes sure lance didnt say the command
                 if existing_owed == None:
                     cur.execute("INSERT INTO " + i + ' VALUES ("' + j + '", ' + str(amount_owed) + ')')
                 else:
-                    cur.execute("UPDATE " + i + " SET amount_owed = " + str(amount_owed + int(existing_owed[0])) + "WHERE person_owed = '" + j + "'")
+                    remaining_owed = int(amount_owed) + int(existing_owed[0])
+                    cur.execute("UPDATE " + i + " SET amount_owed = " + str(remaining_owed) + "WHERE person_owed = '" + j + "'")
 
         await message.channel.send("Owers: " + str(owers) + "\nOwees: " + str(owees) + "\nAmount Owed to the Owees (Individually, not split up evenly): " + str(amount_owed))
 
