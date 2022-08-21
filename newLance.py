@@ -27,6 +27,9 @@ f = open("api.txt", 'r')
 apidata = f.read().splitlines()
 f.close()
 
+#SQL STUFF
+con = sqlite3.connect("owes.db")
+
 #NOMICS API STUFF
 url = apidata[0]
 
@@ -285,11 +288,10 @@ async def on_message(message): #makes sure lance didnt say the command
             name = message.content.replace('!seebalance ', "")
 
         #TODO: SQL query to find balance in db, according to name row
-        con = sqlite3.connect("owes.db")
-        cur = con.cursor
+        cur = con.cursor()
         rows = cur.execute("SELECT * FROM " + name)
 
-        await message.channel.send(str(rows))
+        await message.channel.send(str(rows.fetchall()))
 
     elif message.content.startswith('!') and (' owes ' in message.content or ' owe ' in message.content): 
         #syntax is "!Aidan owes Cody Dylan 20" || !Aidan Dylan owe Cody 30
@@ -314,8 +316,7 @@ async def on_message(message): #makes sure lance didnt say the command
             owees[i] = owees[i].lower()
 
         #TODO: SQL Query to insert this info into the db
-        con = sqlite3.connect("owes.db")
-        cur = con.cursor
+        cur = con.cursor()
         
         for i in owers:
             cur.execute("CREATE TABLE IF NOT EXISTS " + i + " (person_owed VARCHAR(20), amount_owed INT(10))")
@@ -349,8 +350,7 @@ async def on_message(message): #makes sure lance didnt say the command
             payees[i] = payees[i].lower()
 
         #TODO: SQL Query to insert this info into the db
-        con = sqlite3.connect("owes.db")
-        cur = con.cursor
+        cur = con.cursor()
 
         for i in payers:
             for j in payees:
