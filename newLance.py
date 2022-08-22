@@ -287,8 +287,10 @@ async def on_message(message): #makes sure lance didnt say the command
         #TODO: SQL query to find balance in db, according to name row
         con = sqlite3.connect("owes.db")
         cur = con.cursor()
-        rows = cur.execute("SELECT * FROM " + name)
-        rows = rows.fetchall()
+        try:
+            rows = cur.execute("SELECT * FROM " + name).fetchall()
+        except:
+            await message.channel.send("Cannot find table for " + name)
         strings = ""
         for i in rows:
             if str(i[1]) != '0':
@@ -297,9 +299,10 @@ async def on_message(message): #makes sure lance didnt say the command
         if strings == '':
             strings = name.capitalize() + " does not owe anyone anything."
 
-        await message.channel.send(strings)
         con.commit()
-
+        con.close()
+        await message.channel.send(strings)
+        
     elif message.content.startswith('!') and (' owes ' in message.content or ' owe ' in message.content): 
         #syntax is "!Aidan owes Cody Dylan 20" || !Aidan Dylan owe Cody 30
         #it also can parse out ' and ' and '$' to allow for more natural language like:
@@ -339,6 +342,7 @@ async def on_message(message): #makes sure lance didnt say the command
                     cur.execute("UPDATE " + i + " SET amount_owed = " + str(remaining_owed) + " WHERE person_owed = '" + j + "'")
 
         con.commit()
+        con.close()
         await message.channel.send("Amount owed updated")
 
     elif message.content.startswith('!') and ' paid ' in message.content: 
@@ -379,6 +383,7 @@ async def on_message(message): #makes sure lance didnt say the command
                     cur.execute("UPDATE " + i + " SET amount_owed = " + str(remaining_owed) + " WHERE person_owed = '" + j + "'")
 
         con.commit()
+        con.close()
         await message.channel.send("Amount paid updated")
 
     #SONG COMMANDS
