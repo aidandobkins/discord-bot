@@ -291,7 +291,8 @@ async def on_message(message): #makes sure lance didnt say the command
         rows = rows.fetchall()
         strings = ""
         for i in rows:
-            strings = strings + "Amount owed to " + str(i[0]) + ": " + str(i[1]) + '\n'
+            if str(i[1]) != '0':
+                strings = strings + "Amount owed to " + str(i[0]) + ": " + str(i[1]) + '\n'
 
         await message.channel.send(strings)
         con.commit()
@@ -360,7 +361,7 @@ async def on_message(message): #makes sure lance didnt say the command
         con = sqlite3.connect("owes.db")
         cur = con.cursor()
 
-        for i in payers:
+        for i in payers: #TODO: remove column if the amount is 0
             for j in payees:
                 existing_owed = cur.execute("SELECT amount_owed FROM " + i + " WHERE person_owed = '" + j + "'")
                 existing_owed = existing_owed.fetchone()
@@ -368,11 +369,9 @@ async def on_message(message): #makes sure lance didnt say the command
                     await message.channel.send(str(payers) + " didn't owe " + str(payees) + " anything.")
                 else:
                     remaining_owed = int(existing_owed[0]) - int(amount_paid)
-                    if remaining_owed <= 0: 
+                    if remaining_owed < 0: 
                         remaining_owed = 0
-                        cur.execute("ALTER TABLE " + i + " DROP COLUMN " + j)
-                    else:
-                        cur.execute("UPDATE " + i + " SET amount_owed = " + str(remaining_owed) + " WHERE person_owed = '" + j + "'")
+                    cur.execute("UPDATE " + i + " SET amount_owed = " + str(remaining_owed) + " WHERE person_owed = '" + j + "'")
 
         con.commit()
         await message.channel.send("Amount paid updated")
