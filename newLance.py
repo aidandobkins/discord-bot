@@ -292,11 +292,11 @@ async def on_message(message): #makes sure lance didnt say the command
         strings = ""
         for i in rows:
             if str(i[1]) != '0':
-                strings = strings + "Amount owed to " + str(i[0]) + ": " + str(i[1]) + '\n'
+                strings = strings + "Owes " + str(i[0]).capitalize() + ": $" + str(i[1]) + '\n'
 
         if strings == '':
-            strings = name + " does not owe anyone anything."
-            
+            strings = name.capitalize() + " does not owe anyone anything."
+
         await message.channel.send(strings)
         con.commit()
 
