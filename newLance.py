@@ -289,19 +289,21 @@ async def on_message(message): #makes sure lance didnt say the command
         cur = con.cursor()
         try:
             rows = cur.execute("SELECT * FROM " + name).fetchall()
+            strings = ""
+            for i in rows:
+                if str(i[1]) != '0':
+                    strings = strings + "Owes " + str(i[0]).capitalize() + ": $" + str(i[1]) + '\n'
+
+            if strings == '':
+                strings = name.capitalize() + " does not owe anyone anything."
+
+            await message.channel.send(strings)
         except:
             await message.channel.send("Cannot find table for " + name)
-        strings = ""
-        for i in rows:
-            if str(i[1]) != '0':
-                strings = strings + "Owes " + str(i[0]).capitalize() + ": $" + str(i[1]) + '\n'
-
-        if strings == '':
-            strings = name.capitalize() + " does not owe anyone anything."
 
         con.commit()
         con.close()
-        await message.channel.send(strings)
+        
         
     elif message.content.startswith('!') and (' owes ' in message.content or ' owe ' in message.content): 
         #syntax is "!Aidan owes Cody Dylan 20" || !Aidan Dylan owe Cody 30
