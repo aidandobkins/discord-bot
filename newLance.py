@@ -307,20 +307,21 @@ async def on_message(message): #makes sure lance didnt say the command
         mess = message.content.replace('!', "")
         mess = mess.replace(' and ', " ")
         mess = mess.replace('$', "")
+        mess = mess.replace(',', " ")
         if ' owes ' in message.content:
             mess = mess.split(" owes ") #[Aidan, Cody Dylan 20]
         else:
             mess = mess.split(" owe ") #[Aidan Dylan, Cody 30]
         owers = mess[0].split() #[Aidan] || [Aidan, Dylan]
         mess = mess[1].split() #[Cody, Dylan, 20] || [Cody, 30]
-        amount_owed = mess[-1] #20 || 30
+        amount_owed = mess[-1].strip() #20 || 30
         owees = mess[:-1] #[Cody, Dylan] || [Cody]
 
         for i in range(len(owers)):
-            owers[i] = owers[i].lower()
+            owers[i] = owers[i].lower().strip()
 
         for i in range(len(owees)):
-            owees[i] = owees[i].lower()
+            owees[i] = owees[i].lower().strip()
 
         #TODO: SQL Query to insert this info into the db
         con = sqlite3.connect("owes.db")
@@ -347,18 +348,19 @@ async def on_message(message): #makes sure lance didnt say the command
         mess = message.content.replace('!', "")
         mess = mess.replace(' and ', " ")
         mess = mess.replace('$', "")
+        mess = mess.replace(',', " ")
         mess = mess.split(" paid ") #[Aidan, Cody Dylan 20]
 
         payers = mess[0].split() #[Aidan] || [Aidan, Dylan]
         mess = mess[1].split() #[Cody, Dylan, 20] || [Cody, 30]
-        amount_paid = mess[-1] #20 || 30
+        amount_paid = mess[-1].strip() #20 || 30
         payees = mess[:-1] #[Cody, Dylan] || [Cody]
 
         for i in range(len(payers)):
-            payers[i] = payers[i].lower()
+            payers[i] = payers[i].lower().strip()
 
         for i in range(len(payees)):
-            payees[i] = payees[i].lower()
+            payees[i] = payees[i].lower().strip()
 
         #TODO: SQL Query to insert this info into the db
         con = sqlite3.connect("owes.db")
