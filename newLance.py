@@ -289,11 +289,11 @@ async def on_message(message): #makes sure lance didnt say the command
         cur = con.cursor()
         rows = cur.execute("SELECT * FROM " + name)
         rows = rows.fetchall()
-        strings = ""
+        strings = name + " does not owe anyone anything."
         for i in rows:
             if str(i[1]) != '0':
                 strings = strings + "Amount owed to " + str(i[0]) + ": " + str(i[1]) + '\n'
-
+                
         await message.channel.send(strings)
         con.commit()
 
