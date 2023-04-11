@@ -368,7 +368,6 @@ async def on_message(message): #makes sure lance didnt say the command
         for i in range(len(payees)):
             payees[i] = payees[i].lower().strip()
 
-        #TODO: SQL Query to insert this info into the db
         con = sqlite3.connect("owes.db")
         cur = con.cursor()
 
