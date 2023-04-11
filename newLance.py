@@ -111,6 +111,13 @@ def checkBirthdays():
             name = i['name']
     return [mindiff, name]
 
+def getAllBirthdays():
+    birthf = open('birthdays.json')
+    tempb = json.load(birthf)
+    birthf.close()
+    birthdays = tempb['birthdays']
+    return birthdays
+
 @client.event
 async def on_ready():
     print('Logged in as')
@@ -179,6 +186,12 @@ async def on_message(message): #makes sure lance didnt say the command
             await message.channel.send("It's " + bday[1] + "'s Birthday Today!!!")
         else:
             await message.channel.send("There are " + str(bday[0]) + " days until " + bday[1] + "'s birthday.")
+            
+    #BIRTHDAYS COMMAND
+    elif message.content == '!birthdays':
+        bdays = getAllBirthdays()
+
+        await message.channel.send(bdays)
 
     #DOGE COMMAND
     elif message.content == '!doge':
