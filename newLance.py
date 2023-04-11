@@ -190,8 +190,10 @@ async def on_message(message): #makes sure lance didnt say the command
     #BIRTHDAYS COMMAND
     elif message.content == '!birthdays':
         bdays = getAllBirthdays()
+        #bdaysObj = json.loads(bdays)
+        bdaysFormatted = json.dumps(bdays, indent=2)
 
-        await message.channel.send(bdays)
+        await message.channel.send(bdaysFormatted)
 
     #DOGE COMMAND
     elif message.content == '!doge':
