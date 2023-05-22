@@ -116,7 +116,10 @@ def getAllBirthdays():
     tempb = json.load(birthf)
     birthf.close()
     birthdays = tempb['birthdays']
-    return birthdays
+    birthdaysParsed = '';
+    for birthday in birthdays:
+        birthdaysParsed += birthday['name'] + ': ' + birthday['month'] + '/' + birthday['day'] + '\n'
+    return birthdaysParsed
 
 @client.event
 async def on_ready():
@@ -189,11 +192,7 @@ async def on_message(message): #makes sure lance didnt say the command
             
     #BIRTHDAYS COMMAND
     elif message.content == '!birthdays':
-        bdays = getAllBirthdays()
-        #bdaysObj = json.loads(bdays)
-        bdaysFormatted = json.dumps(bdays, indent=2)
-
-        await message.channel.send(bdaysFormatted)
+        await message.channel.send(getAllBirthdays())
 
     #DOGE COMMAND
     elif message.content == '!doge':
