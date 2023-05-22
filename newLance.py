@@ -118,7 +118,7 @@ def getAllBirthdays():
     birthdays = tempb['birthdays']
     birthdaysParsed = '';
     for birthday in birthdays:
-        birthdaysParsed += birthday['name'] + ': ' + birthday['month'] + '/' + birthday['day'] + '\n'
+        birthdaysParsed += birthday['name'] + ': ' + str(birthday['month']) + '/' + str(birthday['day']) + '\n'
     return birthdaysParsed
 
 @client.event
